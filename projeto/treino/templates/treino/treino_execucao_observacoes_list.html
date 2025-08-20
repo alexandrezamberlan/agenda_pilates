@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}
+	{% bootstrap_icon 'record' %} Observações do treino de {{ object_list.first.treino.paciente.nome }}
+{% endblock %}
+
+{% block content %}
+	<div class="table-responsive">
+		<table class="table table-hover">
+			<thead>				
+				<th>Observações</th>
+			</thead>
+
+			<tbody>
+				{% for treino_execucao in object_list %}
+					<tr>
+						<td>
+							{{ treino_execucao.observacao|default:"Nenhum comentário" }}
+							{% if treino_execucao.observacao %}
+								<br>
+								<small>
+									<b>Data: </b>{{ treino_execucao.data_hora|date:"d/m/Y H:i" }}<br>
+								</small>
+							{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+			<tfoot>
+				<th colspan="1">
+					Total de registros: {{ object_list|length }}
+				</th>
+			</tfoot>
+		</table>
+		<a href="javascript:history.go(-1);" class="btn btn-warning" role="button">Voltar</a>
+	</div>
+{% endblock %}

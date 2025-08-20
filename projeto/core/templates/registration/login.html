@@ -1,0 +1,84 @@
+{% extends "registration/base.html" %}
+
+{% load bootstrap3 %}
+{% load static %}  
+
+{% block title %}VitaPel / Login{% endblock %}
+
+{% block content %}
+<style>
+.fundo-verde {
+  background-color:rgb(146, 164, 146); /* Verde claro */
+  padding: 15px; /* Espaço interno para melhor aparência */
+  border-radius: 5px; /* Cantos arredondados opcionais */
+}
+</style>
+    <br>
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <div class="text-center">
+          {% comment %} <img src="{% static 'core/img/banner2_transparent.png' %}" class="img-fluid" style="max-width: 200px;"> {% endcomment %}
+          <img src="{% static 'core/img/banner1_transparent.png' %}" class="img-fluid" style="max-width: 300px;">
+          <br>
+        </div> 
+        <p align="justify">
+          Nosso sistema foi desenvolvido com o objetivo de facilitar e otimizar o processo de agendamento de consultas e treinos entre fisioterapeutas e pacientes em reabilitação. 
+          <br>
+          A plataforma permite que fisioterapeutas e pacientes tenham mais autonomia, organização e controle sobre os horários e atividades 
+          relacionadas ao processo de recuperação.
+        </p>
+        <p align="justify">
+          Com uma interface intuitiva, o sistema oferece funcionalidades como:
+        </p>
+        <ul>
+          <li><strong>Cadastro de profissionais e pacientes:</strong> Fisioterapeutas e pacientes podem se registrar na plataforma, com perfis personalizados e informações clínicas relevantes.</li>
+          <li><strong>Agendamento inteligente:</strong> Pacientes podem visualizar a disponibilidade dos fisioterapeutas e agendar consultas ou treinos de acordo com seus horários e necessidades.</li>
+          <li><strong>Notificações automáticas:</strong> O sistema envia lembretes por e-mail ou SMS para evitar esquecimentos e garantir maior assiduidade.</li>
+          <li><strong>Histórico de atendimentos e treinos:</strong> Cada sessão é registrada, permitindo que o fisioterapeuta acompanhe a evolução do paciente e ajuste o plano de reabilitação quando necessário.</li>
+          <li><strong>Flexibilidade e controle:</strong> Os profissionais podem definir sua agenda de trabalho, bloquear horários e organizar seus atendimentos de forma prática e eficiente.</li>
+        </ul>
+        <p>
+          Contate <i><b>vitapel@ufn.edu.br para informações</b></i>.
+        </p>
+      </div> 
+      <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1">
+      </div>
+      <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+            <div class="text-center">
+              <h1 style="color:rgb(237, 99, 30);"><b>Acesso ao sistema</b></h1>
+            </div>  
+            <div class="account-wall">
+              <br>
+              <form class="form-signin" method="POST">
+              {% csrf_token %}
+              {% bootstrap_form form %}
+              <span class="clearfix"></span>
+              <p style="text-align:center;">
+                <button type="submit" style="width:100%;" class="btn btn-primary btn-small" >
+                  {% bootstrap_icon 'glyphicon glyphicon-off' %} Entrar
+                </button>
+              </p>
+              <p style="text-align:center;">
+                {% comment %} <a class="btn btn-info" style="width:49%;" href="{% url 'usuario_register' %}">{% bootstrap_icon 'glyphicon glyphicon-user' %} Criar conta</a> {% endcomment %}
+                {% comment %} <a class="btn btn-info" style="width:49%;" href="">{% bootstrap_icon 'glyphicon glyphicon-user' %} Criar conta</a> {% endcomment %}
+                <a class="btn btn-warning" style="width:100%;" href="{% url 'password_reset' %}">{% bootstrap_icon 'glyphicon glyphicon-flag' %} Resetar senha</a>
+              </p>
+              </form>
+            </div>
+            <hr>
+            <div class="text-center">
+              <a href="https://lapinf.ufn.edu.br" target="_blank"><img src="{% static 'core/img/logo_lapinf_hor.png' %}"
+                style="width: 140px;"></a>   
+                
+                <a href="http://erclinic.com.br/" target="_blank"><img src="{% static 'core/img/logoERClinic.png' %}"
+                  style="width: 50px;"></a>                          
+            </div>
+            <hr>
+        </div>
+    </div>
+    <div align="center">
+      <hr>
+      <label class="text-primary">Todos os direitos reservados | Desde 2025.</label>
+      <br><br>
+    </div>
+{% endblock %}

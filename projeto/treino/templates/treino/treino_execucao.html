@@ -1,0 +1,646 @@
+{% extends 'apppaciente/base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}
+    {% comment %} {% bootstrap_icon 'play-circle' %} Execução do Treino: {{ treino.descricao }} {% endcomment %}
+{% endblock %}
+
+{% block content %}
+	<!-- Google Fonts -->
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+	
+	<style>
+		/* Estilo personalizado para execução de treino */
+		.treino-execution-container {
+			background-color: #F8F5ED;
+			min-height: 100vh;
+			font-family: 'Montserrat', sans-serif;
+			color: #2A9D8F;
+			position: relative;
+		}
+		
+		.back-button {
+			position: fixed;
+			top: 20px;
+			left: 20px;
+			background-color: #2A9D8F;
+			color: white;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 15px;
+			font-weight: 600;
+			text-decoration: none;
+			z-index: 1000;
+		}
+		
+		.back-button:hover {
+			background-color: #258577;
+			color: white;
+			text-decoration: none;
+		}
+		
+		.pause-icon {
+			position: fixed;
+			top: 20px;
+			right: 20px;
+			font-size: 32px;
+			color: #E76F51;
+			cursor: pointer;
+			background: none;
+			border: none;
+			z-index: 1000;
+		}
+		
+		.execution-header {
+			background-color: #2A9D8F;
+			color: white;
+			padding: 20px;
+			text-align: center;
+			font-weight: 600;
+			font-size: 20px;
+			margin-bottom: 0;
+		}
+		
+		.main-content {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			min-height: calc(100vh - 100px);
+			padding: 40px 20px;
+		}
+		
+		.instruction-text {
+			font-size: 28px;
+			font-weight: 700;
+			text-transform: uppercase;
+			color: #2A9D8F;
+			margin: 10px 0;
+			text-align: center;
+		}
+		
+		.timer-text {
+			font-size: 44px;
+			font-weight: 700;
+			color: #2A9D8F;
+			margin: 20px 0;
+			text-align: center;
+		}
+		
+		.intensity-text {
+			font-size: 28px;
+			font-weight: 600;
+			color: #2A9D8F;
+			margin: 20px 0;
+			text-align: center;
+		}
+		
+		.chart-container {
+			background: white;
+			border-radius: 15px;
+			padding: 20px;
+			margin: 20px 0;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+			border: 2px solid #2A9D8F;
+			width: 100%;
+			max-width: 800px;
+		}
+		
+		.control-buttons {
+			margin: 30px 0;
+		}
+		
+		.btn-custom {
+			background-color: #2A9D8F;
+			color: white;
+			border: none;
+			padding: 20px 40px;
+			margin: 0 15px;
+			border-radius: 25px;
+			font-weight: 400;
+			font-size: 14px;
+			text-transform: uppercase;
+			transition: all 0.3s ease;
+		}
+		
+		.btn-custom:hover {
+			background-color: #258577;
+			color: white;
+		}
+		
+		.btn-custom:disabled {
+			background-color: #ccc;
+			color: #666;
+		}
+		
+		.btn-finish {
+			background-color: #E76F51;
+			color: white;
+			border: none;
+			padding: 20px 40px;
+			border-radius: 25px;
+			font-weight: 400;
+			font-size: 14px;
+			text-transform: uppercase;
+			{% comment %} margin-top: 30px; {% endcomment %}
+		}
+		
+		.btn-finish:hover {
+			background-color: #d85d44;
+			color: white;
+		}
+		
+		.footer-bar {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			height: 15px;
+			background-color: #2A9D8F;
+		}
+		
+		.treino-info {
+			background: white;
+			border-radius: 15px;
+			padding: 10px;
+			margin-bottom: 30px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+			border: 2px solid #2A9D8F;
+			text-align: center;
+			max-width: 600px;
+		}
+	</style>
+
+	<div class="treino-execution-container">
+		<!-- Botão de Voltar -->
+		{% comment %} <a href="{% url 'apppaciente_treino_meu_list' %}" class="back-button">
+			{% bootstrap_icon 'arrow-left' %} Voltar
+		</a> {% endcomment %}
+		<!-- Ícone de Pausa -->
+		<button id="pauseBtn" class="pause-icon" style="display: none;">||</button>
+		
+		<!-- Cabeçalho -->
+		{% comment %} <div class="execution-header">
+			EXECUÇÃO DO TREINO: {{ treino.descricao }}
+		</div> {% endcomment %}
+		
+		<!-- Conteúdo Principal -->
+		<div class="main-content">
+			<!-- Informações do Treino -->
+			<div class="treino-info">
+				
+				<!-- Área Principal da Animação -->
+				<div class="instruction-text" id="instructionText">PREPARE-SE</div>
+				<div class="timer-text" id="timerText">3</div>
+				<div class="intensity-text" id="intensityText">0%</div>
+
+				{% comment %} <h4 style="color: #2A9D8F; font-weight: 700; margin-bottom: 15px;">INFORMAÇÕES</h4> {% endcomment %}
+				{% comment %} <p><strong>Paciente:</strong> {{ treino.paciente.nome }}</p>
+				<p><strong>Fisioterapeuta:</strong> {{ treino.fisioterapeuta.nome }}</p>
+				<p><strong>Exercícios:</strong> {{ treino.exercicios.count }}</p> {% endcomment %}
+				<p><strong>Treino:</strong> {{ treino.descricao }} | <strong>Repetições:</strong> {{ treino.quantidade_repeticoes }}</p>
+				{% if treino.pausas > 0 %}
+					<p><strong>Pausas:</strong> {{ treino.pausas }}s entre exercícios</p>
+				{% endif %}
+			</div>
+			
+			<!-- Controles -->
+			<div class="control-buttons">
+				<button id="playBtn" class="btn-custom">
+					{% bootstrap_icon 'play' %} INICIAR TREINO
+				</button>
+				<button id="stopBtn" class="btn-custom" disabled>
+					{% bootstrap_icon 'stop' %} PARAR
+				</button>
+				<!-- Botão de Finalizar (hidden inicialmente) -->
+				<button id="finishBtn" class="btn-finish" style="display: none;">
+					REGISTRAR TREINO
+				</button>
+			</div>
+			
+			<!-- Container do Gráfico -->
+			<div class="chart-container">
+				<canvas id="treinoChart" width="700" height="350"></canvas>
+			</div>
+		</div>
+		
+		<!-- Barra de Rodapé -->
+		<div class="footer-bar">
+		</div>
+	</div>
+
+	<!-- Dados do Django injetados como JSON -->
+	<script>
+		// Dados do treino vindos do Django
+		const treinoData = {
+			id: {{ treino.id }},
+			descricao: "{{ treino.descricao|escapejs }}",
+			quantidade_repeticoes: {{ treino.quantidade_repeticoes|default:1 }},
+			pausas: {{ treino.pausas|default:0 }},
+			exercicios: [
+				{% for exercicio in treino.exercicios.all %}
+				{
+					id: {{ exercicio.id }},
+					descricao: "{{ exercicio.descricao|escapejs }}",
+					tempo: {{ exercicio.tempo }},
+					intensidade: {{ exercicio.intensidade }}
+				}{% if not forloop.last %},{% endif %}
+				{% endfor %}
+			]
+		};
+
+		console.log('Dados do treino carregados:', treinoData);
+	</script>
+
+	<!-- JavaScript da Nova Animação com Varredura -->
+	<script>
+		class TreinoExecutorGrafico {
+			constructor(treinoData) {
+				this.treinoData = treinoData;
+				this.exercisePlan = [];
+				this.currentPhaseIndex = 0;
+				this.phaseStartTime = null;
+				this.isRunning = false;
+				this.isPaused = false;
+				this.animationFrame = null;
+				
+				// Elementos DOM
+				this.instructionText = document.getElementById('instructionText');
+				this.timerText = document.getElementById('timerText');
+				this.intensityText = document.getElementById('intensityText');
+				this.canvas = document.getElementById('treinoChart');
+				this.ctx = this.canvas.getContext('2d');
+				this.playBtn = document.getElementById('playBtn');
+				this.pauseBtn = document.getElementById('pauseBtn');
+				this.stopBtn = document.getElementById('stopBtn');
+				this.finishBtn = document.getElementById('finishBtn');
+				
+				this.init();
+			}
+			
+			init() {
+				this.generateExercisePlan();
+				this.setupEventListeners();
+				this.drawChart();
+				this.updateDisplay();
+			}
+			
+			generateExercisePlan() {
+				console.log('Gerando plano de exercícios...');
+				this.exercisePlan = [];
+				
+				// Início: Fase de preparação
+				this.exercisePlan.push({
+					type: 'PREPARE-SE',
+					duration: 3,
+					level: 0
+				});
+				
+				// Iteração: Para cada exercício na lista treino.exercicios
+				for (let i = 0; i < this.treinoData.exercicios.length; i++) {
+					const exercicio = this.treinoData.exercicios[i];
+					
+					// Para cada repetição de 1 até treino.quantidade_repeticoes
+					for (let rep = 0; rep < this.treinoData.quantidade_repeticoes; rep++) {
+						// Adicione uma fase CONTRAIA
+						this.exercisePlan.push({
+							type: 'CONTRAIA',
+							duration: exercicio.tempo,
+							level: exercicio.intensidade / 100,
+							intensityPercent: exercicio.intensidade,
+							exercicioNome: exercicio.descricao
+						});
+						
+						// Adicione uma fase RELAXE
+						this.exercisePlan.push({
+							type: 'RELAXE',
+							duration: exercicio.tempo,
+							level: 0
+						});
+					}
+					
+					// Após todas as repetições de um exercício (e se não for o último exercício da lista)
+					if (i < this.treinoData.exercicios.length - 1 && this.treinoData.pausas > 0) {
+						// Adicione uma fase DESCANSO
+						this.exercisePlan.push({
+							type: 'DESCANSO',
+							duration: this.treinoData.pausas,
+							level: 0
+						});
+					}
+				}
+				
+				console.log('Plano de exercícios gerado:', this.exercisePlan);
+			}
+			
+			setupEventListeners() {
+				this.playBtn.addEventListener('click', () => this.start());
+				this.pauseBtn.addEventListener('click', () => this.pause());
+				this.stopBtn.addEventListener('click', () => this.stop());
+				this.finishBtn.addEventListener('click', () => this.finish());
+			}
+			
+			start() {
+				if (this.isPaused) {
+					this.isPaused = false;
+					this.pauseBtn.style.display = 'block';
+				} else {
+					this.isRunning = true;
+					this.currentPhaseIndex = 0;
+					this.phaseStartTime = Date.now();
+				}
+				
+				this.playBtn.disabled = true;
+				this.pauseBtn.style.display = 'block';
+				this.stopBtn.disabled = false;
+				
+				this.animate();
+			}
+			
+			pause() {
+				this.isPaused = true;
+				this.playBtn.disabled = false;
+				this.pauseBtn.style.display = 'none';
+				
+				if (this.animationFrame) {
+					cancelAnimationFrame(this.animationFrame);
+				}
+			}
+			
+			stop() {
+				this.isRunning = false;
+				this.isPaused = false;
+				this.currentPhaseIndex = 0;
+				
+				this.playBtn.disabled = false;
+				this.pauseBtn.style.display = 'none';
+				this.stopBtn.disabled = true;
+				this.finishBtn.style.display = 'none';
+				
+				// Reset do botão de play
+				this.playBtn.innerHTML = '<i class="glyphicon glyphicon-play"></i> INICIAR TREINO';
+				
+				if (this.animationFrame) {
+					cancelAnimationFrame(this.animationFrame);
+				}
+				
+				this.updateDisplay();
+				this.drawChart();
+			}
+			
+			finish() {
+				// Registrar execução do treino
+				this.registrarExecucao();
+				
+				// Redirecionar para lista de treinos
+				window.location.href = "{% url 'apppaciente_treino_execucao_create' treino.slug %}";	
+			}
+			
+			animate() {
+				if (!this.isRunning || this.isPaused) return;
+				
+				const now = Date.now();
+				const currentPhase = this.exercisePlan[this.currentPhaseIndex];
+				
+				if (!currentPhase) {
+					// Treino finalizado
+					this.finishTraining();
+					return;
+				}
+				
+				const phaseElapsed = (now - this.phaseStartTime) / 1000;
+				const timeRemaining = Math.max(0, currentPhase.duration - phaseElapsed);
+				
+				if (phaseElapsed >= currentPhase.duration) {
+					// Avançar para próxima fase
+					this.currentPhaseIndex++;
+					this.phaseStartTime = now;
+				}
+				
+				this.updateDisplay(timeRemaining);
+				this.drawChart(phaseElapsed / currentPhase.duration);
+				
+				this.animationFrame = requestAnimationFrame(() => this.animate());
+			}
+			
+			finishTraining() {
+				this.isRunning = false;
+				this.instructionText.textContent = 'TREINO FINALIZADO!';
+				this.timerText.textContent = '✓';
+				this.intensityText.textContent = 'CONCLUÍDO';
+				
+				this.playBtn.disabled = true;
+				this.pauseBtn.style.display = 'none';
+				this.stopBtn.disabled = true;
+				this.finishBtn.style.display = 'inline-block';
+				
+				this.drawChart(1);
+			}
+			
+			updateDisplay(timeRemaining = null) {
+				const currentPhase = this.exercisePlan[this.currentPhaseIndex];
+				
+				if (currentPhase) {
+					// Atualizar texto da instrução
+					let instructionText = currentPhase.type;
+					if (currentPhase.type === 'CONTRAIA' && currentPhase.intensityPercent) {
+						instructionText = `CONTRAIA ${currentPhase.intensityPercent}%`;
+					}
+					this.instructionText.textContent = instructionText;
+					
+					// Atualizar timer
+					const displayTime = timeRemaining !== null ? Math.ceil(timeRemaining) : currentPhase.duration;
+					this.timerText.textContent = displayTime;
+					
+					// Atualizar intensidade
+					this.intensityText.textContent = Math.round(currentPhase.level * 100) + '%';
+				} else {
+					this.instructionText.textContent = 'PREPARE-SE';
+					this.timerText.textContent = '3';
+					this.intensityText.textContent = '0%';
+				}
+			}
+			
+			drawChart(phaseProgress = 0) {
+				const ctx = this.ctx;
+				const width = this.canvas.width;
+				const height = this.canvas.height;
+				
+				// Limpar canvas
+				ctx.clearRect(0, 0, width, height);
+				
+				// Configurações do gráfico
+				const padding = 80;
+				const chartWidth = width - 2 * padding;
+				const chartHeight = height - 2 * padding;
+				const chartBottom = height - padding;
+				
+				// Desenhar eixo Y e labels
+				ctx.strokeStyle = '#2A9D8F';
+				ctx.lineWidth = 2;
+				ctx.font = '16px Montserrat';
+				ctx.fillStyle = '#2A9D8F';
+				ctx.textAlign = 'right';
+				ctx.fontWeight = '600';
+				
+				// Linha e label 100%
+				const y100 = chartBottom - chartHeight;
+				ctx.setLineDash([5, 5]);
+				ctx.beginPath();
+				ctx.moveTo(padding, y100);
+				ctx.lineTo(width - padding, y100);
+				ctx.stroke();
+				ctx.fillText('100%', padding - 15, y100 + 6);
+				
+				// Linha e label 50%
+				const y50 = chartBottom - chartHeight / 2;
+				ctx.beginPath();
+				ctx.moveTo(padding, y50);
+				ctx.lineTo(width - padding, y50);
+				ctx.stroke();
+				ctx.fillText('50%', padding - 15, y50 + 6);
+				
+				// Linha e label 0% (sólida)
+				const y0 = chartBottom;
+				ctx.setLineDash([]);
+				ctx.lineWidth = 3;
+				ctx.beginPath();
+				ctx.moveTo(padding, y0);
+				ctx.lineTo(width - padding, y0);
+				ctx.stroke();
+				ctx.fillText('0%', padding - 15, y0 + 6);
+				
+				// Desenhar linha do gráfico com varredura
+				this.drawSweepingLine(ctx, padding, chartBottom, chartWidth, chartHeight, phaseProgress);
+			}
+			
+			drawSweepingLine(ctx, startX, baseY, chartWidth, chartHeight, phaseProgress) {
+				const totalDuration = this.exercisePlan.reduce((sum, phase) => sum + phase.duration, 0);
+				let cumulativeTime = 0;
+				
+				// Desenhar linha "futura" (toda a sequência em cor mais clara)
+				ctx.strokeStyle = '#a8b8b8';
+				ctx.lineWidth = 2;
+				ctx.setLineDash([]);
+				ctx.beginPath();
+				
+				let firstPoint = true;
+				const futurePoints = [];
+				
+				for (let i = 0; i < this.exercisePlan.length; i++) {
+					const phase = this.exercisePlan[i];
+					const x1 = startX + (cumulativeTime / totalDuration) * chartWidth;
+					const y1 = baseY - (phase.level * chartHeight);
+					
+					futurePoints.push({x: x1, y: y1});
+					
+					if (firstPoint) {
+						ctx.moveTo(x1, y1);
+						firstPoint = false;
+					} else {
+						ctx.lineTo(x1, y1);
+					}
+					
+					cumulativeTime += phase.duration;
+					const x2 = startX + (cumulativeTime / totalDuration) * chartWidth;
+					ctx.lineTo(x2, y1);
+					
+					futurePoints.push({x: x2, y: y1});
+				}
+				ctx.stroke();
+				
+				// Calcular posição atual da bolinha (varredura horizontal)
+				let currentTime = 0;
+				for (let i = 0; i < this.currentPhaseIndex; i++) {
+					currentTime += this.exercisePlan[i].duration;
+				}
+				
+				if (this.currentPhaseIndex < this.exercisePlan.length) {
+					const currentPhase = this.exercisePlan[this.currentPhaseIndex];
+					currentTime += phaseProgress * currentPhase.duration;
+					
+					// Desenhar linha "revelada" até a posição atual
+					const revealX = startX + (currentTime / totalDuration) * chartWidth;
+					
+					ctx.strokeStyle = '#2A9D8F';
+					ctx.lineWidth = 4;
+					ctx.beginPath();
+					
+					let firstRevealPoint = true;
+					cumulativeTime = 0;
+					
+					for (let i = 0; i < this.exercisePlan.length; i++) {
+						const phase = this.exercisePlan[i];
+						const x1 = startX + (cumulativeTime / totalDuration) * chartWidth;
+						const y1 = baseY - (phase.level * chartHeight);
+						
+						if (x1 <= revealX) {
+							if (firstRevealPoint) {
+								ctx.moveTo(x1, y1);
+								firstRevealPoint = false;
+							} else {
+								ctx.lineTo(x1, y1);
+							}
+						}
+						
+						cumulativeTime += phase.duration;
+						const x2 = startX + (cumulativeTime / totalDuration) * chartWidth;
+						
+						if (x2 <= revealX) {
+							ctx.lineTo(Math.min(x2, revealX), y1);
+						} else if (x1 <= revealX) {
+							ctx.lineTo(revealX, y1);
+							break;
+						}
+					}
+					ctx.stroke();
+					
+					// Desenhar bolinha vermelha na posição atual
+					const ballY = baseY - (currentPhase.level * chartHeight);
+					
+					ctx.fillStyle = '#E76F51';
+					ctx.beginPath();
+					ctx.arc(revealX, ballY, 10, 0, 2 * Math.PI);
+					ctx.fill();
+					
+					// Borda da bolinha
+					ctx.strokeStyle = '#ffffff';
+					ctx.lineWidth = 2;
+					ctx.stroke();
+				}
+			}
+			
+			registrarExecucao() {
+				// Enviar dados da execução para o backend Django
+				fetch(`/treino/${this.treinoData.id}/registrar-execucao/`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+					},
+					body: JSON.stringify({
+						treino_id: this.treinoData.id,
+						data_hora: new Date().toISOString(),
+						observacao: 'Treino executado via interface web atualizada'
+					})
+				})
+				.then(response => response.json())
+				.then(data => {
+					console.log('Execução registrada:', data);
+				})
+				.catch(error => {
+					console.error('Erro ao registrar execução:', error);
+				});
+			}
+		}
+		
+		// Inicializar quando a página carregar
+		document.addEventListener('DOMContentLoaded', function() {
+			console.log('Inicializando executor de treino...');
+			window.treinoExecutor = new TreinoExecutorGrafico(treinoData);
+		});
+	</script>
+
+	<!-- Token CSRF para requisições AJAX -->
+	{% csrf_token %}
+{% endblock %} 

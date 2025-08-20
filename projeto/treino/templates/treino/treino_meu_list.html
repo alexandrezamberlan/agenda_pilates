@@ -1,0 +1,144 @@
+{% extends 'core/base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}
+	{% bootstrap_icon 'record' %} Treinos Montados
+{% endblock %}
+
+{% block content %}
+	<div class="panel panel-default">
+		<div class="panel-body">
+		<form class="form">
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+					{% bootstrap_field form.pesquisa  %}
+				</div>	
+				<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+					<br>
+					<button type="submit" class="btn btn-success btn-md"  style="width: 100%;">{% bootstrap_icon 'search' %} Buscar</button>
+				</div>			
+				<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+					<br>
+					<a href="{% url 'treino_meu_create' %}" class="btn btn-md btn-primary" style="width: 100%;">{% bootstrap_icon 'record' %} Cadastrar treino</a>
+				</div>			
+			</div>
+		</form>
+		</div>
+	</div>
+
+	<div class="table-responsive">
+		<table class="table table-hover">
+			<thead>
+				<th>Descrição</th>
+				<th>Paciente</th>
+				<th>Exercícios</th>
+				<th class="text-center">Observações paciente</th>
+				<th class="text-center">Repetições</th>
+				<th>Pausas</th>
+				<th>Período</th>
+				<th class="text-center">Vezes no período</th>
+				<th class="text-center">Ativo</th>
+				{% comment %} <th class="text-center">Executar</th> {% endcomment %}
+				<th class="text-center">Editar</th>
+				<th class="text-center">Excluir</th>
+			</thead>
+
+			<tbody>
+				{% for treino in object_list %}
+					<tr>
+						<td>
+							{{ treino.descricao }}<br>
+							{% if treino.meta_treino_atingida %}
+								<span class="label label-success"> META ATINGIDA </span>
+							{% endif %}
+						</td>
+						<td>
+							{{ treino.paciente.nome }}  
+						</td>
+						<td>
+							{% for exercicio in treino.exercicios.all %}
+								{% if exercicio.video %}
+									<a href="{{ exercicio.video }}" target="_blank">{% bootstrap_icon 'film' %}</a>					
+								{% endif %}
+								{{ exercicio }}
+								<br>								
+							{% endfor %}
+							{% if treino.qtd_desse_treino_realizado > 0 %}
+								<label class="badge border border-primary text-primary bg-light">Treino executado {{ treino.qtd_desse_treino_realizado }} vez(es)</label><br>
+							{% else %}
+								<b>Não iniciado</b>
+							{% endif %}
+						</td>
+						<td class="text-center">
+							{% if treino.observacoes_treino > 0 %}
+								{% bootstrap_button content='' href=treino.get_observacoes_treino_url button_type='link' icon='eye-open' button_class='btn btn-info' size='sm' %}
+								<br>
+								<b>Total:</b> {{ treino.observacoes_treino }}
+							{% else %}
+								
+							{% endif %}
+							
+						</td>
+						<td class="text-center">
+							{{ treino.quantidade_repeticoes }}
+						</td>
+						<td>
+							{% if treino.pausas > 0 %}
+								{{ treino.pausas }} seg.
+							{% else %}
+								Sem pausas
+							{% endif %}
+						</td>
+						<td>
+							<b>Início: </b>
+							{% if treino.data_inicio %}
+								{{ treino.data_inicio|date:"d/m/Y" }}
+							{% else %}
+								Não definido
+							{% endif %}
+							<br>
+							<b>Fim: </b>
+							{% if treino.data_fim %}
+								{{ treino.data_fim|date:"d/m/Y" }}
+							{% else %}
+								Não definido
+							{% endif %}
+						</td>
+						<td class="text-center">
+							{{ treino.quantidade_vezes_periodo }}
+						</td>
+						<td class="text-center">
+							{% if treino.is_active %}
+								{% bootstrap_icon 'thumbs-up' size='sm' %}
+							{% else %}
+								{% bootstrap_icon 'thumbs-down' size='sm' %}
+							{% endif %}
+						</td>						
+						{% comment %} <td class="text-center">
+							{% if treino.is_active and treino.exercicios.count > 0 %}
+								<a href="{% url 'treino_executar' treino.slug %}" class="btn btn-success btn-sm" title="Executar Treino">
+									<span class="glyphicon glyphicon-play"></span>
+								</a>
+							{% else %}
+								<button class="btn btn-success btn-sm disabled" title="Treino inativo ou sem exercícios">
+									<span class="glyphicon glyphicon-play"></span>
+								</button>
+							{% endif %}
+						</td> {% endcomment %}
+						<td class="text-center">
+							{% bootstrap_button content='' href=treino.get_meu_absolute_url button_type='link' icon='edit' button_class='btn btn-primary' size='sm' %}
+						</td>
+						<td class="text-center">
+							{% bootstrap_button content='' href=treino.get_meu_delete_url button_type='link' icon='trash' button_class='btn btn-danger' size='sm' %}
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+			<tfoot>
+				<th colspan="10">
+					Total de registros: {{ object_list|length }}
+				</th>
+			</tfoot>
+		</table>
+	</div>
+{% endblock %}

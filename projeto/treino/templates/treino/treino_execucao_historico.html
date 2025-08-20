@@ -1,0 +1,172 @@
+{% extends 'core/base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}
+    {% bootstrap_icon 'time' %} Histórico de Execuções: {{ treino.descricao }}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            
+            <!-- Informações do Treino -->
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        {% bootstrap_icon 'info-sign' %} Informações do Treino
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Descrição:</strong> {{ treino.descricao }}</p>
+                            <p><strong>Paciente:</strong> {{ treino.paciente.nome }}</p>
+                            <p><strong>Fisioterapeuta:</strong> {{ treino.fisioterapeuta.nome }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Repetições por exercício:</strong> {{ treino.quantidade_repeticoes }}</p>
+                            <p><strong>Pausa entre exercícios:</strong> {{ treino.pausas }}s</p>
+                            <p><strong>Total de execuções:</strong> {{ total_execucoes }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercícios do Treino -->
+                    <h4>{% bootstrap_icon 'list' %} Exercícios</h4>
+                    <div class="row">
+                        {% for exercicio in treino.exercicios.all %}
+                        <div class="col-md-4">
+                            <div class="well well-sm">
+                                <h5>{{ exercicio.descricao }}</h5>
+                                <p>
+                                    <small>
+                                        <strong>Tempo:</strong> {{ exercicio.tempo }}s |
+                                        <strong>Intensidade:</strong> {{ exercicio.intensidade }}%
+                                    </small>
+                                </p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações -->
+            <div class="text-center" style="margin: 20px 0;">
+                <a href="{% url 'treino_executar' treino.slug %}" class="btn btn-success btn-lg">
+                    {% bootstrap_icon 'play' %} Executar Treino Novamente
+                </a>
+                <a href="{% url 'treino_list' %}" class="btn btn-default">
+                    {% bootstrap_icon 'arrow-left' %} Voltar à Lista
+                </a>
+            </div>
+
+            <!-- Histórico de Execuções -->
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        {% bootstrap_icon 'time' %} Histórico de Execuções ({{ total_execucoes }})
+                    </h3>
+                </div>
+                
+                {% if execucoes %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% bootstrap_icon 'calendar' %} Data/Hora</th>
+                                <th>{% bootstrap_icon 'comment' %} Observações</th>
+                                <th class="text-center">{% bootstrap_icon 'time' %} Duração</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for execucao in execucoes %}
+                            <tr>
+                                <td>
+                                    <strong>{{ execucao.data_hora|date:"d/m/Y" }}</strong><br>
+                                    <small class="text-muted">{{ execucao.data_hora|date:"H:i:s" }}</small>
+                                </td>
+                                <td>
+                                    {% if execucao.observacao %}
+                                        {{ execucao.observacao|truncatewords:15 }}
+                                    {% else %}
+                                        <em class="text-muted">Sem observações</em>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <span class="label label-info">
+                                        {% widthratio execucao.data_hora|timesince:"now" 1 1 %}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="panel-body text-center">
+                    <div style="padding: 40px;">
+                        {% bootstrap_icon 'exclamation-sign' %}
+                        <h4>Nenhuma execução registrada</h4>
+                        <p class="text-muted">Este treino ainda não foi executado.</p>
+                        <a href="{% url 'treino_executar' treino.slug %}" class="btn btn-primary">
+                            {% bootstrap_icon 'play' %} Executar Agora
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Estatísticas -->
+            {% if execucoes %}
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="panel panel-success">
+                        <div class="panel-body text-center">
+                            <h2>{{ total_execucoes }}</h2>
+                            <p>Total de Execuções</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-warning">
+                        <div class="panel-body text-center">
+                            <h2>{{ execucoes.first.data_hora|date:"d/m" }}</h2>
+                            <p>Última Execução</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-info">
+                        <div class="panel-body text-center">
+                            <h2>{{ execucoes.last.data_hora|date:"d/m" }}</h2>
+                            <p>Primeira Execução</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+        </div>
+    </div>
+</div>
+
+<style>
+.well h5 {
+    margin-top: 0;
+    color: #337ab7;
+}
+
+.panel-body .row {
+    margin-bottom: 15px;
+}
+
+.table > tbody > tr > td {
+    vertical-align: middle;
+}
+
+.label {
+    font-size: 12px;
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,88 @@
+{% extends 'core/base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}
+	{% bootstrap_icon 'fire' %} Exercícios
+{% endblock %}
+
+{% block content %}
+	<div class="panel panel-default">
+		<div class="panel-body">
+		<form class="form">
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+					{% bootstrap_field form.pesquisa  %}
+				</div>	
+				<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+					<br>
+					<button type="submit" class="btn btn-success btn-md"  style="width: 100%;">{% bootstrap_icon 'search' %} Buscar</button>
+				</div>			
+				<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+					<br>
+					<a href="{% url 'exercicio_create' %}" class="btn btn-md btn-primary" style="width: 100%;">{% bootstrap_icon 'record' %} Cadastrar exercicio</a>
+				</div>			
+			</div>
+		</form>
+		</div>
+	</div>
+
+	
+	<div class="table-responsive">
+		<table class="table table-hover">
+			<thead>
+				<th>Descrição</th>
+				<th class="text-center">Tempo</th>
+				<th class="text-center">Intensidade</th>
+				<th class="text-center">Vídeo</th>
+				<th class="text-center">Animação</th>
+				<th class="text-center">Ativo</th>
+				<th class="text-center">Editar</th>
+				<th class="text-center">Excluir</th>
+			</thead>
+
+			<tbody>
+				{% for exercicio in object_list %}
+					<tr>
+						<td>
+							{{ exercicio.descricao }}
+						</td>
+						<td class="text-center">							
+							{{ exercicio.tempo }} segundos
+						</td>
+						<td class="text-center">
+							{{ exercicio.intensidade }} porcento
+						</td>
+						<td class="text-center">
+							{% if exercicio.video %}
+								<a href="{{ exercicio.video }}" target="_blank">{% bootstrap_icon 'film' %}<br>YouTube</a>					
+							{% endif %}
+						</td>
+						<td class="text-center">
+							<a href="{{ exercicio.get_animacao_url }}" class="btn btn-success btn-sm" title="Ver Animação">
+								{% bootstrap_icon 'play' %}
+							</a>
+						</td>
+						<td class="text-center">
+							{% if exercicio.is_active %}
+								{% bootstrap_icon 'thumbs-up' size='sm' %}
+							{% else %}
+								{% bootstrap_icon 'thumbs-down' size='sm' %}
+							{% endif %}
+						</td>
+						<td class="text-center">
+							{% bootstrap_button content='' href=exercicio.get_absolute_url button_type='link' icon='edit' button_class='btn btn-primary' size='sm' %}
+						</td>
+						<td class="text-center">
+							{% bootstrap_button content='' href=exercicio.get_delete_url button_type='link' icon='trash' button_class='btn btn-danger' size='sm' %}
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+			<tfoot>
+				<th colspan="7">
+					Total de registros: {{ object_list|length }}
+				</th>
+			</tfoot>
+		</table>
+	</div>
+{% endblock %}

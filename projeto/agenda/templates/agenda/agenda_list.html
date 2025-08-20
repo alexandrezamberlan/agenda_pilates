@@ -1,0 +1,97 @@
+{% extends 'core/base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}
+	{% bootstrap_icon 'calendar' %} Agenda | Consulta
+{% endblock %}
+
+{% block content %}
+	<div class="panel panel-default">
+		<div class="panel-body">
+		<form class="form">
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+					{% bootstrap_field form.pesquisa  %}
+				</div>	
+				<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+					<br>
+					<button type="submit" class="btn btn-success btn-md"  style="width: 100%;">{% bootstrap_icon 'search' %} Buscar</button>
+				</div>			
+				<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+					<br>
+					<a href="{% url 'agenda_create' %}" class="btn btn-md btn-primary" style="width: 100%;">{% bootstrap_icon 'record' %} Gerar consulta</a>
+				</div>			
+			</div>
+		</form>
+		</div>
+	</div>
+
+	<div class="table-responsive">
+		<table class="table table-hover">
+			<thead>
+				<th>Paciente</th>
+				<th>Profissional</th>
+				<th>Data</th>
+				<th>Hora</th>
+				<th>Comentários</th>
+				<th class="text-center">Realizada</th>
+				<th class="text-center">Ativo</th>
+				<th class="text-center">Editar</th>
+				<th class="text-center">Excluir</th>
+			</thead>
+
+			<tbody>
+				{% for agenda in object_list %}
+					<tr>
+						<td>
+							{{ agenda.paciente.nome }}<br>
+							<a href="https://api.whatsapp.com/send?phone=55{{ agenda.paciente.celular }}" target="_blank">
+                            	<small class="badge">{% bootstrap_icon 'comment' %} {{ agenda.paciente.celular }}</small>
+							</a>
+						</td>
+						<td>
+							{{ agenda.fisioterapeuta.nome }} <br> 
+							<a href="https://api.whatsapp.com/send?phone=55{{ agenda.fisioterapeuta.celular }}" target="_blank">
+                            	<small class="badge">{% bootstrap_icon 'comment' %} {{ agenda.fisioterapeuta.celular }}</small>
+							</a>
+						</td>
+						<td>
+							{{ agenda.data|date:"d/m/Y" }}
+						</td>
+						<td>
+							{{ agenda.hora|date:"H:i" }}	
+						</td>
+						<td>
+							{{ agenda.comentarios|default:"Sem comentários" }}
+						</td>
+						<td class="text-center">
+							{% if agenda.realizado %}
+								{% bootstrap_icon 'thumbs-up' size='sm' %}
+							{% else %}
+								{% bootstrap_icon 'thumbs-down' size='sm' %}
+							{% endif %}
+						</td>
+						<td class="text-center">
+							{% if agenda.is_active %}
+								{% bootstrap_icon 'thumbs-up' size='sm' %}
+							{% else %}
+								{% bootstrap_icon 'thumbs-down' size='sm' %}
+							{% endif %}
+						</td>
+						<td class="text-center">
+							{% bootstrap_button content='' href=agenda.get_absolute_url button_type='link' icon='edit' button_class='btn btn-primary' size='sm' %}
+						</td>
+						<td class="text-center">
+							{% bootstrap_button content='' href=agenda.get_delete_url button_type='link' icon='trash' button_class='btn btn-danger' size='sm' %}
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+			<tfoot>
+				<th colspan="9">
+					Total de registros: {{ object_list|length }}
+				</th>
+			</tfoot>
+		</table>
+	</div>
+{% endblock %}
